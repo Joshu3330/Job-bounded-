@@ -1,0 +1,6 @@
+{
+  "name": "ResumeCraft",
+  "description": "Tailor-make resumes and cover letters perfectly matched to job descriptions with high-thinking AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

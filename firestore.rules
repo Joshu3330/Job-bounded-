@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidTimestamp(val) {
+      return val is timestamp && val <= request.time;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.userId == userId &&
+        data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 200 &&
+        (!('email' in data) || (data.email is string && data.email.size() <= 200)) &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 100)) &&
+        (!('headline' in data) || (data.headline is string && data.headline.size() <= 300)) &&
+        (!('summary' in data) || (data.summary is string && data.summary.size() <= 10000)) &&
+        (!('skills' in data) || (data.skills is string && data.skills.size() <= 10000)) &&
+        (!('workExperience' in data) || (data.workExperience is string && data.workExperience.size() <= 50000)) &&
+        (!('education' in data) || (data.education is string && data.education.size() <= 20000)) &&
+        (!('careerGoals' in data) || (data.careerGoals is string && data.careerGoals.size() <= 10000)) &&
+        (!('createdAt' in data) || isValidTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidTimestamp(data.updatedAt));
+    }
+
+    function isValidJobApplication(data, userId) {
+      return data.userId == userId &&
+        data.company is string && data.company.size() > 0 && data.company.size() <= 200 &&
+        data.jobTitle is string && data.jobTitle.size() > 0 && data.jobTitle.size() <= 200 &&
+        data.status is string && data.status in ['Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected'] &&
+        (!('jobDescription' in data) || (data.jobDescription is string && data.jobDescription.size() <= 50000)) &&
+        (!('applicationDate' in data) || (data.applicationDate is string && data.applicationDate.size() <= 50)) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
+        (!('deadline' in data) || (data.deadline is string && data.deadline.size() <= 100)) &&
+        (!('salary' in data) || (data.salary is string && data.salary.size() <= 100)) &&
+        (!('location' in data) || (data.location is string && data.location.size() <= 200)) &&
+        (!('tailoredResume' in data) || (data.tailoredResume is string && data.tailoredResume.size() <= 50000)) &&
+        (!('tailoredCoverLetter' in data) || (data.tailoredCoverLetter is string && data.tailoredCoverLetter.size() <= 50000)) &&
+        (!('matchScore' in data) || (data.matchScore is int && data.matchScore >= 0 && data.matchScore <= 100)) &&
+        (!('matchAnalysis' in data) || (data.matchAnalysis is string && data.matchAnalysis.size() <= 20000)) &&
+        (!('desiredTone' in data) || (data.desiredTone is string && data.desiredTone.size() <= 100)) &&
+        (!('emphasizedSkills' in data) || (data.emphasizedSkills is string && data.emphasizedSkills.size() <= 5000)) &&
+        (!('createdAt' in data) || isValidTimestamp(data.createdAt)) &&
+        (!('updatedAt' in data) || isValidTimestamp(data.updatedAt));
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /profile/{profileId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidUserProfile(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+
+      match /job_applications/{applicationId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidJobApplication(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

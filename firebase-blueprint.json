@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User background including work experience, education, skills, and goals",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "fullName": { "type": "string", "description": "Candidate full name" },
+        "email": { "type": "string", "description": "Contact email" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "headline": { "type": "string", "description": "Professional title or headline" },
+        "summary": { "type": "string", "description": "Professional summary or bio" },
+        "skills": { "type": "string", "description": "Comma-separated or bullet list of core skills" },
+        "workExperience": { "type": "string", "description": "Detailed employment history and responsibilities" },
+        "education": { "type": "string", "description": "Academic background, degrees, certifications" },
+        "careerGoals": { "type": "string", "description": "Career objectives and aspirations" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["userId", "fullName"]
+    },
+    "JobApplication": {
+      "title": "JobApplication",
+      "description": "A tracked job application with its tailored resume, cover letter, and match analysis",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "company": { "type": "string", "description": "Hiring company name" },
+        "jobTitle": { "type": "string", "description": "Target job title" },
+        "jobDescription": { "type": "string", "description": "Full job description text provided by employer" },
+        "applicationDate": { "type": "string", "description": "Date applied or planned (YYYY-MM-DD)" },
+        "status": { "type": "string", "enum": ["Saved", "Applied", "Interviewing", "Offer", "Rejected"], "description": "Application status" },
+        "notes": { "type": "string", "description": "Notes, interview rounds, contact people" },
+        "deadline": { "type": "string", "description": "Application deadline" },
+        "salary": { "type": "string", "description": "Target or listed salary" },
+        "location": { "type": "string", "description": "Job location or remote status" },
+        "tailoredResume": { "type": "string", "description": "AI-tailored resume customized for this job" },
+        "tailoredCoverLetter": { "type": "string", "description": "AI-tailored cover letter customized for this job" },
+        "matchScore": { "type": "integer", "description": "Compatibility score 0-100 calculated by AI" },
+        "matchAnalysis": { "type": "string", "description": "Detailed matching analysis with key strengths and gaps" },
+        "desiredTone": { "type": "string", "description": "Tone used for tailoring: Professional, Creative, Concise, etc." },
+        "emphasizedSkills": { "type": "string", "description": "Specific skills or achievements emphasized" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp via serverTimestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp via serverTimestamp" }
+      },
+      "required": ["userId", "company", "jobTitle", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/profile/{profileId}": {
+      "schema": "UserProfile",
+      "description": "User profile collection scoped to authenticated user"
+    },
+    "/users/{userId}/job_applications/{applicationId}": {
+      "schema": "JobApplication",
+      "description": "Job applications and tailored documents scoped to authenticated user"
+    }
+  }
+}
